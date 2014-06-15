@@ -23,8 +23,24 @@ The `injector` object contains four methods. The first three are responsible for
 
 The last method enables the injection of any of these values into another function. This functionality is also exposed by calling the `injector` object itself.
 
-4. `injector#inject` - injects items into another function, making these items accessible as arguments, by name. (same as calling `injector`)
+All injected functions (`injector#service`, `injector#factory`, `injector#injector`) can be called on an array of dependencies (by name), followed by the function into which these are to be injected, or else on the function itself.
 
+I recommend using the array wrapping style ('annotation style', [per angular's docs](https://docs.angularjs.org/api/auto/service/$injector)), since it protects the code against [several problems] [1].
+
+```JavaScript
+injector.inject(['Dep1', 'Dep2', 'Dep3', function (Dep1, Dep2, Dep2) {
+	// Dep1, Dep2, Dep3 all available by name in this function
+}]);
+
+injector.inject(function (Dep1, Dep2, Dep2) {
+	// Dep1, Dep2, Dep3 all available by name in this function, even without the array.
+});
+
+```
+
+
+
+4. `injector#inject` - injects items into another function, making these items accessible as arguments, by name. (same as calling `injector`)
 
 ## Examples
 
@@ -127,3 +143,5 @@ injector(['User', function (User) {
 	User.greet('hello world'); // 'mbildner says hello world'
 }]);
 ```
+
+[1] JavaScript minifiers/compressors tend to replace argument names, in the signature and body of a function. Since `providers` are registered with a name, if a function's argument names gets munged the `injector` will not be able to find them, and will throw a polite error.

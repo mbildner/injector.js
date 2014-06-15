@@ -68,25 +68,22 @@
 
 	/**
 	 * Injects an array of dependencies into a provided function.
-	 * @param  {Array} fnArray - Array of all the requested injectable names, with the final value always being the function into which they are to be injected.
+	 * @param  {Array, Function} providerDefn - either an array with all requested providers named and the last member the function into which to provide them, or simply that function itself.
 	 * @param  {Object} [context] - INTERNAL USE ONLY: context within which the injectable function is to be called. (Used for registering services.)
 	 * @return - the result of user's injected function after it has been invoked.
 	 */
-	function _inject (fnArray, context) {
+	function _inject (providerDefn, context) {
 		var length,
 			injectedFunc,
 			dependencyArr,
+			providerArr,
 			dependencies;
 
-		if (!Array.isArray(fnArray)) {
-			var args = _getFuncArgs(fnArray);
-			args.push(fnArray);
-			fnArray = args;
-		}
+		providerArr = _extractProviderArray(providerDefn);
 
-		length = fnArray.length;
-		injectedFunc = fnArray[length - 1];
-		dependencyArr = fnArray.slice(0, -1);
+		length = providerArr.length;
+		injectedFunc = providerArr[length - 1];
+		dependencyArr = providerArr.slice(0, -1);
 		dependencies = dependencyArr.map(_resolve);
 
 		return injectedFunc.apply(context, dependencies);
@@ -117,15 +114,13 @@
 	/**
 	 * Registers injectable factory provider
 	 * @param  {String} name - name of the injectable factory
-	 * @param  {Array} providerArr - Array of all injectable dependencies, with the final item being the factory function whose return may be injected into other functions
+ 	 * @param  {Array, Function} providerDefn - either an array with all requested providers named and the last member the function into which to provide them, or simply that function itself.
 	 * @return {Function} - returns the module function, for chaining
 	 */
-	function _factory (name, providerArr) {
-		if (typeof providerArr === 'function') {
-			var args = _getFuncArgs(providerArr);
-			args.push(providerArr);
-			providerArr = args;
-		}
+	function _factory (name, providerDefn) {
+		var providerArr;
+
+		providerArr = _extractProviderArray(providerDefn);
 
 		var providerFunc = _callOnce(function () {
 			return _inject(providerArr);
@@ -139,20 +134,17 @@
 	/**
 	 * Registers injectable service provider
 	 * @param  {String} name - name of the injectable service
-	 * @param  {Array} providerArr - Array of all injectable dependencies, with the final item being the constructor function whose return may be injected into other functions
+	 * @param  {Array, Function} providerDefn - either an array with all requested providers named and the last member the function into which to provide them, or simply that function itself.
 	 * @return {Function} - returns the module function, for chaining
 	 */
-	function _service (name, providerArr) {
+	function _service (name, providerDefn) {
 		var providerFunc = _callOnce(function () {
 			var func,
 				ctx,
+				providerArr,
 				boundFunc;
 
-			if (typeof providerArr === 'function') {
-				var args = _getFuncArgs(providerArr);
-				args.push(providerArr);
-				providerArr = args;
-			}
+			providerArr = _extractProviderArray(providerDefn);
 
 			func = providerArr.pop();
 			ctx = {};
@@ -210,6 +202,20 @@
 		})();
 	}
 
+
+	function _extractProviderArray (providerDefn) {
+		var args;
+
+		if (Array.isArray(providerDefn) && typeof providerDefn[providerDefn.length-1]==='function') {
+			return providerDefn;
+		} else if (typeof providerDefn === 'function') {
+			args = _getFuncArgs(providerDefn);
+			args.push(providerDefn);
+			return args;
+		} else {
+			throw new Error('Injectables must either be a single function or an array with a function as the final element');
+		}
+	}
 
 	function _getFuncArgs (func) {
 		return func.toString()
