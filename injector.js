@@ -121,11 +121,11 @@
 	 * @return {Function} - returns the module function, for chaining
 	 */
 	function _factory (name, providerArr) {
-
 		if (typeof providerArr === 'function') {
 			var args = _getFuncArgs(providerArr);
+			args.push(providerArr);
+			providerArr = args;
 		}
-
 
 		var providerFunc = _callOnce(function () {
 			return _inject(providerArr);
@@ -147,6 +147,12 @@
 			var func,
 				ctx,
 				boundFunc;
+
+			if (typeof providerArr === 'function') {
+				var args = _getFuncArgs(providerArr);
+				args.push(providerArr);
+				providerArr = args;
+			}
 
 			func = providerArr.pop();
 			ctx = {};
