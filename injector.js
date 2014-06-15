@@ -29,7 +29,7 @@
  * 	}])
  *
  */
-;var injector = (function () {
+;var injector = (function (window) {
 	var module,
 		_providerStorage = {};
 
@@ -78,6 +78,12 @@
 			dependencyArr,
 			dependencies;
 
+		if (!Array.isArray(fnArray)) {
+			var args = _getFuncArgs(fnArray);
+			args.push(fnArray);
+			fnArray = args;
+		}
+
 		length = fnArray.length;
 		injectedFunc = fnArray[length - 1];
 		dependencyArr = fnArray.slice(0, -1);
@@ -115,6 +121,12 @@
 	 * @return {Function} - returns the module function, for chaining
 	 */
 	function _factory (name, providerArr) {
+
+		if (typeof providerArr === 'function') {
+			var args = _getFuncArgs(providerArr);
+		}
+
+
 		var providerFunc = _callOnce(function () {
 			return _inject(providerArr);
 		});
@@ -192,5 +204,16 @@
 		})();
 	}
 
+
+	function _getFuncArgs (func) {
+		return func.toString()
+			.match(/\(.*?\)/)[0]
+			.replace(/(\(|\)|\s)/gm, '')
+			.split(',')
+			.filter(function (arg) {
+				return arg !== '';
+			});
+	}
+
 	return module;
-})();
+})(window);
