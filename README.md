@@ -20,8 +20,7 @@ The `injector` object contains four methods. The first three are responsible for
 1. [`injector#value`](#injectorvalue) - register arbitrary values (strings, numbers, objects, functions, booleans... anything)
 2. [`injector#service`](#injectorservice) - register constructor functions, a single instance of which will be provided by the injector
 3. [`injector#factory`](#injectorfactory) - register factory functions, the result of which will be provided by the injector
-
-The last method enables the injection of any of these values into another function. This functionality is also exposed by calling the `injector` object itself.
+4. `injector#inject` - injects items into another function, making these items accessible as arguments, by name. (This functionality is also exposed by calling the `injector` object itself.)
 
 All injected functions (`injector#service`, `injector#factory`, `injector#injector`) can be called on an array of dependencies (by name), followed by the function into which these are to be injected, or else on the function itself.
 
@@ -37,10 +36,6 @@ injector.inject(function (Dep1, Dep2, Dep2) {
 });
 
 ```
-
-
-
-4. `injector#inject` - injects items into another function, making these items accessible as arguments, by name. (same as calling `injector`)
 
 ## Examples
 
@@ -144,4 +139,4 @@ injector(['User', function (User) {
 }]);
 ```
 
-[1] JavaScript minifiers/compressors tend to replace argument names, in the signature and body of a function. Since `providers` are registered with a name, if a function's argument names gets munged the `injector` will not be able to find them, and will throw a polite error.
+[1]: JavaScript minifiers/compressors tend to replace argument names, in the signature and body of a function. Since `providers` are registered with a name, if a function's argument names gets munged the `injector` will not be able to find them, and will throw a polite error.
