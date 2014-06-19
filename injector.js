@@ -31,200 +31,200 @@
  */
 ;(function (window) {
 	// publicly accessible module object
-	function injector (injectableArr, context) {
-		return inject(injectableArr, context);
-	}
+  function injector (injectableArr, context) {
+    return inject(injectableArr, context);
+  }
 
-	var providerStorage = {};
+  var providerStorage = {};
 
-	/**
-	 * Resolves a dependency by name.
-	 * @private
-	 * @param  {String} name - name of the desired provider function
-	 * @return {*} - will return the result of the requested provider function
-	 */
-	function resolve (name) {
-		var provider,
-			injectable;
+  /**
+   * Resolves a dependency by name.
+   * @private
+   * @param  {String} name - name of the desired provider function
+   * @return {*} - will return the result of the requested provider function
+   */
+  function resolve (name) {
+    var provider,
+      injectable;
 
-		provider = providerStorage[name];
+    provider = providerStorage[name];
 
-		if (typeof provider !== 'function') {
-			throw new Error('Provider for ' + name + ' failed');
-		}
+    if (typeof provider !== 'function') {
+      throw new Error('Provider for ' + name + ' failed');
+    }
 
-		injectable = provider();
+    injectable = provider();
 
-		return injectable;
-	}
+    return injectable;
+  }
 
-	/**
-	 * Injects an array of dependencies into a provided function.
-	 * @param  {Array, Function} providerDefn - either an array with all requested providers named and the last member the function into which to provide them, or simply that function itself.
-	 * @param  {Object} [context] - INTERNAL USE ONLY: context within which the injectable function is to be called. (Used for registering services.)
-	 * @return - the result of user's injected function after it has been invoked.
-	 */
-	function inject (providerDefn, context) {
-		var length,
-			injectedFunc,
-			dependencyArr,
-			providerArr,
-			dependencies;
+  /**
+   * Injects an array of dependencies into a provided function.
+   * @param  {Array, Function} providerDefn - either an array with all requested providers named and the last member the function into which to provide them, or simply that function itself.
+   * @param  {Object} [context] - INTERNAL USE ONLY: context within which the injectable function is to be called. (Used for registering services.)
+   * @return - the result of user's injected function after it has been invoked.
+   */
+  function inject (providerDefn, context) {
+    var length,
+      injectedFunc,
+      dependencyArr,
+      providerArr,
+      dependencies;
 
-		providerArr = extractProviderArray(providerDefn);
+    providerArr = extractProviderArray(providerDefn);
 
-		length = providerArr.length;
-		injectedFunc = providerArr[length - 1];
-		dependencyArr = providerArr.slice(0, -1);
-		dependencies = dependencyArr.map(resolve);
+    length = providerArr.length;
+    injectedFunc = providerArr[length - 1];
+    dependencyArr = providerArr.slice(0, -1);
+    dependencies = dependencyArr.map(resolve);
 
-		return injectedFunc.apply(context, dependencies);
-	};
+    return injectedFunc.apply(context, dependencies);
+  };
 
-	// registers a provider function with the module's internal storage
-	function register (name, providerFunc) {
-		providerStorage[name] = providerFunc;
-	}
+  // registers a provider function with the module's internal storage
+  function register (name, providerFunc) {
+    providerStorage[name] = providerFunc;
+  }
 
-	/**
-	 * Registers injectable value provider
-	 * @param  {String} name  - name of the injectable value
-	 * @param  {*} value - value to be injected
-	 * @return {Function} - returns the injector function, for chaining
-	 */
-	function value (name, value) {
-		var providerFunc = callOnce(function () {
-			return value;
-		});
+  /**
+   * Registers injectable value provider
+   * @param  {String} name  - name of the injectable value
+   * @param  {*} value - value to be injected
+   * @return {Function} - returns the injector function, for chaining
+   */
+  function value (name, value) {
+    var providerFunc = callOnce(function () {
+      return value;
+    });
 
-		register(name, providerFunc);
+    register(name, providerFunc);
 
-		return injector;
+    return injector;
 
-	}
+  }
 
-	/**
-	 * Registers injectable factory provider
-	 * @param  {String} name - name of the injectable factory
- 	 * @param  {Array, Function} providerDefn - either an array with all requested providers named and the last member the function into which to provide them, or simply that function itself.
-	 * @return {Function} - returns the injector function, for chaining
-	 */
-	function factory (name, providerDefn) {
-		var providerArr;
+  /**
+   * Registers injectable factory provider
+   * @param  {String} name - name of the injectable factory
+    * @param  {Array, Function} providerDefn - either an array with all requested providers named and the last member the function into which to provide them, or simply that function itself.
+   * @return {Function} - returns the injector function, for chaining
+   */
+  function factory (name, providerDefn) {
+    var providerArr;
 
-		providerArr = extractProviderArray(providerDefn);
+    providerArr = extractProviderArray(providerDefn);
 
-		var providerFunc = callOnce(function () {
-			return inject(providerArr);
-		});
+    var providerFunc = callOnce(function () {
+      return inject(providerArr);
+    });
 
-		register(name, providerFunc);
+    register(name, providerFunc);
 
-		return injector;
-	};
+    return injector;
+  };
 
-	/**
-	 * Registers injectable service provider
-	 * @param  {String} name - name of the injectable service
-	 * @param  {Array, Function} providerDefn - either an array with all requested providers named and the last member the function into which to provide them, or simply that function itself.
-	 * @return {Function} - returns the injector function, for chaining
-	 */
-	function service (name, providerDefn) {
-		var providerFunc = callOnce(function () {
-			var func,
-				ctx,
-				providerArr,
-				boundFunc;
+  /**
+   * Registers injectable service provider
+   * @param  {String} name - name of the injectable service
+   * @param  {Array, Function} providerDefn - either an array with all requested providers named and the last member the function into which to provide them, or simply that function itself.
+   * @return {Function} - returns the injector function, for chaining
+   */
+  function service (name, providerDefn) {
+    var providerFunc = callOnce(function () {
+      var func,
+        ctx,
+        providerArr,
+        boundFunc;
 
-			providerArr = extractProviderArray(providerDefn);
+      providerArr = extractProviderArray(providerDefn);
 
-			func = providerArr.pop();
-			ctx = {};
-			boundFunc = func.bind(ctx);
-			providerArr.push(boundFunc);
-			inject(providerArr, ctx);
-			return ctx;
-		});
+      func = providerArr.pop();
+      ctx = {};
+      boundFunc = func.bind(ctx);
+      providerArr.push(boundFunc);
+      inject(providerArr, ctx);
+      return ctx;
+    });
 
-		register(name, providerFunc);
+    register(name, providerFunc);
 
-		return injector;
+    return injector;
 
-	}
+  }
 
-	/**
-	 * Returns a copy of the function that returns a cached copy of the function's return value
-	 * @param  {Function} callback - the function whose return should be cached and returned on subsequent calls.
-	 * @return {Function} - a wrapped function that always provides a cached value.
-	 *
-	 * @example - useful for caching expensive, repeated calculations
-	 *
-	 * function expensiveCalculation () {
-	 * 	var a = 0;
-	 * 	while (a < 100000000) {
-	 * 		a++;
-	 * 	}
-	 *
-	 *  return a;
-	 * }
-	 *
-	 * expensiveCalculation() // 100000000
-	 *
-	 * var cachedFunc = callOnce(expensiveCalculation);
-	 *
-	 * cachedFunc() // 100000000
-	 *
-	 */
-	function callOnce (callback) {
-		return (function () {
-			var alreadyCalled,
-				cachedResult;
+  /**
+   * Returns a copy of the function that returns a cached copy of the function's return value
+   * @param  {Function} callback - the function whose return should be cached and returned on subsequent calls.
+   * @return {Function} - a wrapped function that always provides a cached value.
+   *
+   * @example - useful for caching expensive, repeated calculations
+   *
+   * function expensiveCalculation () {
+   *   var a = 0;
+   *   while (a < 100000000) {
+   *     a++;
+   *   }
+   *
+   *  return a;
+   * }
+   *
+   * expensiveCalculation() // 100000000
+   *
+   * var cachedFunc = callOnce(expensiveCalculation);
+   *
+   * cachedFunc() // 100000000
+   *
+   */
+  function callOnce (callback) {
+    return (function () {
+      var alreadyCalled,
+        cachedResult;
 
-			alreadyCalled = false;
-			cachedResult;
+      alreadyCalled = false;
+      cachedResult;
 
-			return function () {
-				if (!alreadyCalled) {
-					alreadyCalled = true;
-					cachedResult = callback();
-				}
+      return function () {
+        if (!alreadyCalled) {
+          alreadyCalled = true;
+          cachedResult = callback();
+        }
 
-				return cachedResult;
-			}
-		})();
-	}
+        return cachedResult;
+      }
+    })();
+  }
 
 
-	function extractProviderArray (providerDefn) {
-		var args;
+  function extractProviderArray (providerDefn) {
+    var args;
 
-		if (Array.isArray(providerDefn) && typeof providerDefn[providerDefn.length-1]==='function') {
-			return providerDefn;
-		} else if (typeof providerDefn === 'function') {
+    if (Array.isArray(providerDefn) && typeof providerDefn[providerDefn.length-1]==='function') {
+      return providerDefn;
+    } else if (typeof providerDefn === 'function') {
       // why is this an option? When would the user not want to explicitly declare the deps for the function in an array?
-			args = getFuncArgs(providerDefn);
-			args.push(providerDefn);
-			return args;
-		} else {
-			throw new Error('Injectables must either be a single function or an array with a function as the final element');
-		}
-	}
+      args = getFuncArgs(providerDefn);
+      args.push(providerDefn);
+      return args;
+    } else {
+      throw new Error('Injectables must either be a single function or an array with a function as the final element');
+    }
+  }
 
-	function getFuncArgs (func) {
-		return func.toString()
-			.match(/\(.*?\)/)[0]
-			.replace(/(\(|\)|\s)/gm, '')
-			.split(',')
-			.filter(function (arg) {
-				return arg !== '';
-			});
-	}
+  function getFuncArgs (func) {
+    return func.toString()
+      .match(/\(.*?\)/)[0]
+      .replace(/(\(|\)|\s)/gm, '')
+      .split(',')
+      .filter(function (arg) {
+        return arg !== '';
+      });
+  }
 
   // attach publicly available methods
-	injector.factory = factory;
-	injector.service = service;
-	injector.value = value;
-	injector.inject = inject;
+  injector.factory = factory;
+  injector.service = service;
+  injector.value = value;
+  injector.inject = inject;
 
   if (typeof exports !== 'undefined') {
     if (typeof module !== 'undefined' && module.exports) {
