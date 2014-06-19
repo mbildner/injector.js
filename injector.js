@@ -181,7 +181,6 @@
         cachedResult;
 
       alreadyCalled = false;
-      cachedResult;
 
       return function () {
         if (!alreadyCalled) {
