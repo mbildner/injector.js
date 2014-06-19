@@ -35,12 +35,6 @@
 		return inject(injectableArr);
 	}
 
-	// attach publicly available methods
-	injector.factory = factory;
-	injector.service = service;
-	injector.value = value;
-	injector.inject = inject;
-
 	var providerStorage = {};
 
 	/**
@@ -224,6 +218,12 @@
 				return arg !== '';
 			});
 	}
+
+  // attach publicly available methods
+	injector.factory = factory;
+	injector.service = service;
+	injector.value = value;
+	injector.inject = inject;
 
   if (typeof exports !== 'undefined') {
     if (typeof module !== 'undefined' && module.exports) {
