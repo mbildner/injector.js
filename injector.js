@@ -65,19 +65,11 @@
    * @return - the result of user's injected function after it has been invoked.
    */
   function inject (providerDefn, context) {
-    var length,
-      injectedFunc,
-      dependencyArr,
-      providerArr,
-      dependencies;
-
-    providerArr = extractProviderArray(providerDefn);
-
-    length = providerArr.length;
-    injectedFunc = providerArr[length - 1];
-    dependencyArr = providerArr.slice(0, -1);
-    dependencies = dependencyArr.map(resolve);
-
+    var providerArr = extractProviderArray(providerDefn);
+    var length = providerArr.length;
+    var injectedFunc = providerArr[length - 1];
+    var dependencyArr = providerArr.slice(0, -1);
+    var dependencies = dependencyArr.map(resolve);
     return injectedFunc.apply(context, dependencies);
   };
 
