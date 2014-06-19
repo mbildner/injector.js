@@ -31,8 +31,8 @@
  */
 ;(function (window) {
 	// publicly accessible module object
-	function injector (injectableArr) {
-		return inject(injectableArr);
+	function injector (injectableArr, context) {
+		return inject(injectableArr, context);
 	}
 
 	var providerStorage = {};
