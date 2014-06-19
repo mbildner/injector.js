@@ -89,6 +89,10 @@
    * @return {Function} - returns the injector function, for chaining
    */
   function value (name, value) {
+    // why does this need to be wrapped in a callOnce?
+    // Since it just returns the passed value, won't it
+    // always return tha same value, regardless of the number
+    // of times it is called?
     var providerFunc = callOnce(function () {
       return value;
     });
