@@ -201,6 +201,7 @@
 		if (Array.isArray(providerDefn) && typeof providerDefn[providerDefn.length-1]==='function') {
 			return providerDefn;
 		} else if (typeof providerDefn === 'function') {
+      // why is this an option? When would the user not want to explicitly declare the deps for the function in an array?
 			args = getFuncArgs(providerDefn);
 			args.push(providerDefn);
 			return args;
