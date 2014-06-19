@@ -35,6 +35,10 @@
     return inject(injectableArr, context);
   }
 
+  // I don't know much about dependency injection, but is common to
+  // have a mechanism for deregistering registered dependencies? This
+  // could be done with a clear() function that clears out providerStorage.
+  // Or it could be done by allowing the user to make instances of an injector?
   var providerStorage = {};
 
   /**
