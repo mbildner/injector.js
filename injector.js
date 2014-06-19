@@ -32,16 +32,16 @@
 ;(function (window) {
 	// publicly accessible module object
 	function injector (injectableArr) {
-		return _inject(injectableArr);
+		return inject(injectableArr);
 	}
 
 	// attach publicly available methods
-	injector.factory = _factory;
-	injector.service = _service;
-	injector.value = _value;
-	injector.inject = _inject;
+	injector.factory = factory;
+	injector.service = service;
+	injector.value = value;
+	injector.inject = inject;
 
-	var _providerStorage = {};
+	var providerStorage = {};
 
 	/**
 	 * Resolves a dependency by name.
@@ -49,11 +49,11 @@
 	 * @param  {String} name - name of the desired provider function
 	 * @return {*} - will return the result of the requested provider function
 	 */
-	function _resolve (name) {
+	function resolve (name) {
 		var provider,
 			injectable;
 
-		provider = _providerStorage[name];
+		provider = providerStorage[name];
 
 		if (typeof provider !== 'function') {
 			throw new Error('Provider for ' + name + ' failed');
@@ -70,26 +70,26 @@
 	 * @param  {Object} [context] - INTERNAL USE ONLY: context within which the injectable function is to be called. (Used for registering services.)
 	 * @return - the result of user's injected function after it has been invoked.
 	 */
-	function _inject (providerDefn, context) {
+	function inject (providerDefn, context) {
 		var length,
 			injectedFunc,
 			dependencyArr,
 			providerArr,
 			dependencies;
 
-		providerArr = _extractProviderArray(providerDefn);
+		providerArr = extractProviderArray(providerDefn);
 
 		length = providerArr.length;
 		injectedFunc = providerArr[length - 1];
 		dependencyArr = providerArr.slice(0, -1);
-		dependencies = dependencyArr.map(_resolve);
+		dependencies = dependencyArr.map(resolve);
 
 		return injectedFunc.apply(context, dependencies);
 	};
 
 	// registers a provider function with the module's internal storage
-	function _register (name, providerFunc) {
-		_providerStorage[name] = providerFunc;
+	function register (name, providerFunc) {
+		providerStorage[name] = providerFunc;
 	}
 
 	/**
@@ -98,12 +98,12 @@
 	 * @param  {*} value - value to be injected
 	 * @return {Function} - returns the injector function, for chaining
 	 */
-	function _value (name, value) {
-		var providerFunc = _callOnce(function () {
+	function value (name, value) {
+		var providerFunc = callOnce(function () {
 			return value;
 		});
 
-		_register(name, providerFunc);
+		register(name, providerFunc);
 
 		return injector;
 
@@ -115,16 +115,16 @@
  	 * @param  {Array, Function} providerDefn - either an array with all requested providers named and the last member the function into which to provide them, or simply that function itself.
 	 * @return {Function} - returns the injector function, for chaining
 	 */
-	function _factory (name, providerDefn) {
+	function factory (name, providerDefn) {
 		var providerArr;
 
-		providerArr = _extractProviderArray(providerDefn);
+		providerArr = extractProviderArray(providerDefn);
 
-		var providerFunc = _callOnce(function () {
-			return _inject(providerArr);
+		var providerFunc = callOnce(function () {
+			return inject(providerArr);
 		});
 
-		_register(name, providerFunc);
+		register(name, providerFunc);
 
 		return injector;
 	};
@@ -135,24 +135,24 @@
 	 * @param  {Array, Function} providerDefn - either an array with all requested providers named and the last member the function into which to provide them, or simply that function itself.
 	 * @return {Function} - returns the injector function, for chaining
 	 */
-	function _service (name, providerDefn) {
-		var providerFunc = _callOnce(function () {
+	function service (name, providerDefn) {
+		var providerFunc = callOnce(function () {
 			var func,
 				ctx,
 				providerArr,
 				boundFunc;
 
-			providerArr = _extractProviderArray(providerDefn);
+			providerArr = extractProviderArray(providerDefn);
 
 			func = providerArr.pop();
 			ctx = {};
 			boundFunc = func.bind(ctx);
 			providerArr.push(boundFunc);
-			_inject(providerArr, ctx);
+			inject(providerArr, ctx);
 			return ctx;
 		});
 
-		_register(name, providerFunc);
+		register(name, providerFunc);
 
 		return injector;
 
@@ -176,12 +176,12 @@
 	 *
 	 * expensiveCalculation() // 100000000
 	 *
-	 * var cachedFunc = _callOnce(expensiveCalculation);
+	 * var cachedFunc = callOnce(expensiveCalculation);
 	 *
 	 * cachedFunc() // 100000000
 	 *
 	 */
-	function _callOnce (callback) {
+	function callOnce (callback) {
 		return (function () {
 			var alreadyCalled,
 				cachedResult;
@@ -201,13 +201,13 @@
 	}
 
 
-	function _extractProviderArray (providerDefn) {
+	function extractProviderArray (providerDefn) {
 		var args;
 
 		if (Array.isArray(providerDefn) && typeof providerDefn[providerDefn.length-1]==='function') {
 			return providerDefn;
 		} else if (typeof providerDefn === 'function') {
-			args = _getFuncArgs(providerDefn);
+			args = getFuncArgs(providerDefn);
 			args.push(providerDefn);
 			return args;
 		} else {
@@ -215,7 +215,7 @@
 		}
 	}
 
-	function _getFuncArgs (func) {
+	function getFuncArgs (func) {
 		return func.toString()
 			.match(/\(.*?\)/)[0]
 			.replace(/(\(|\)|\s)/gm, '')
