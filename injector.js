@@ -29,21 +29,19 @@
  * 	}])
  *
  */
-;var injector = (function (window) {
-	var module,
-		_providerStorage = {};
-
-	// expose the module object publicly, and attach publicly available methods
-	module = _module;
-	module.factory = _factory;
-	module.service = _service;
-	module.value = _value;
-	module.inject = _inject;
-
+;(function (window) {
 	// publicly accessible module object
-	function _module (injectableArr) {
+	function injector (injectableArr) {
 		return _inject(injectableArr);
 	}
+
+	// attach publicly available methods
+	injector.factory = _factory;
+	injector.service = _service;
+	injector.value = _value;
+	injector.inject = _inject;
+
+	var _providerStorage = {};
 
 	/**
 	 * Resolves a dependency by name.
@@ -98,7 +96,7 @@
 	 * Registers injectable value provider
 	 * @param  {String} name  - name of the injectable value
 	 * @param  {*} value - value to be injected
-	 * @return {Function} - returns the module function, for chaining
+	 * @return {Function} - returns the injector function, for chaining
 	 */
 	function _value (name, value) {
 		var providerFunc = _callOnce(function () {
@@ -107,7 +105,7 @@
 
 		_register(name, providerFunc);
 
-		return _module;
+		return injector;
 
 	}
 
@@ -115,7 +113,7 @@
 	 * Registers injectable factory provider
 	 * @param  {String} name - name of the injectable factory
  	 * @param  {Array, Function} providerDefn - either an array with all requested providers named and the last member the function into which to provide them, or simply that function itself.
-	 * @return {Function} - returns the module function, for chaining
+	 * @return {Function} - returns the injector function, for chaining
 	 */
 	function _factory (name, providerDefn) {
 		var providerArr;
@@ -128,14 +126,14 @@
 
 		_register(name, providerFunc);
 
-		return _module;
+		return injector;
 	};
 
 	/**
 	 * Registers injectable service provider
 	 * @param  {String} name - name of the injectable service
 	 * @param  {Array, Function} providerDefn - either an array with all requested providers named and the last member the function into which to provide them, or simply that function itself.
-	 * @return {Function} - returns the module function, for chaining
+	 * @return {Function} - returns the injector function, for chaining
 	 */
 	function _service (name, providerDefn) {
 		var providerFunc = _callOnce(function () {
@@ -156,7 +154,7 @@
 
 		_register(name, providerFunc);
 
-		return _module;
+		return injector;
 
 	}
 
@@ -227,5 +225,13 @@
 			});
 	}
 
-	return module;
-})(window);
+  if (typeof exports !== 'undefined') {
+    if (typeof module !== 'undefined' && module.exports) {
+      exports = module.exports = injector;
+    }
+
+    exports.injector = injector;
+  } else {
+    this['injector'] = injector;
+  }
+})();
