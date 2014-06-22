@@ -15,12 +15,13 @@ Include a reference to `injector.js` on your page, and you're ready to go.
 
 The library will expose a single global object, `injector`.
 
-The `injector` object contains four methods. The first three are responsible for registering different values to be injected into other functions.
+The `injector` object contains five methods. The first three are responsible for registering different values to be injected into other functions, the fourth removes providers registered with the injector (making them unavailable), and the fifth injects values as arguments in a function.
 
 1. [`injector#value`](#injectorvalue) - register arbitrary values (strings, numbers, objects, functions, booleans... anything)
 2. [`injector#service`](#injectorservice) - register constructor functions, a single instance of which will be provided by the injector
 3. [`injector#factory`](#injectorfactory) - register factory functions, the result of which will be provided by the injector
-4. `injector#inject` - injects items into another function, making these items accessible as arguments, by name. (This functionality is also exposed by calling the `injector` object itself.)
+4. [`injector#unregister`](#injectorunregister) - remove a provider from the injector, making it unavailable to be injected.
+5. `injector#inject` - injects items into another function, making these items accessible as arguments, by name. (This functionality is also exposed by calling the `injector` object itself.)
 
 All injected functions (`injector#service`, `injector#factory`, `injector#injector`) can be called on an array of dependencies (by name), followed by the function into which these are to be injected, or else on the function itself.
 
@@ -138,5 +139,23 @@ injector(['User', function (User) {
 	User.greet('hello world'); // 'mbildner says hello world'
 }]);
 ```
+
+### `injector#unregister`
+
+```JavaScript
+injector.value('userid', 12345);
+
+injector.inject(['userid', function (userid) {
+	console.log(userid); // 12345
+}]);
+
+injector.unregister('userid');
+
+injector.inject(['userid', function (userid) {
+	// Error: Provider for unregistrationTest failed
+}]);
+
+```
+
 
 [1]: JavaScript minifiers/compressors tend to replace argument names, in the signature and body of a function. Since `providers` are registered with a name, if a function's argument names gets munged the `injector` will not be able to find them, and will throw a polite error.

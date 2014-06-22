@@ -11,6 +11,7 @@ describe('injector', function () {
 		assert.equal(typeof injector.factory, 'function');
 		assert.equal(typeof injector.service, 'function');
 		assert.equal(typeof injector.inject, 'function');
+		assert.equal(typeof injector.unregister, 'function');
 	});
 
 	describe('#value', function () {
@@ -26,23 +27,27 @@ describe('injector', function () {
 	});
 
 	describe('#service', function () {
-		injector.service('NextBigSound', [function () {
-		  this.city = 'New York City';
-		}]);
+		it('should be able to accept a constructor function', function () {
+			injector.service('NextBigSound', [function () {
+			  this.city = 'New York City';
+			}]);
 
-		injector(['NextBigSound', function (NextBigSound) {
-		  assert.equal(NextBigSound.city, 'New York City');
-		}]);
+			injector(['NextBigSound', function (NextBigSound) {
+			  assert.equal(NextBigSound.city, 'New York City');
+			}]);
+		});
 	});
 
 	describe('#factory', function () {
-		injector.factory('NextBigSound', [function () {
-		  return { city: "New York City" };
-		}]);
+		it('should be able to accept a factory function', function () {
+			injector.factory('NextBigSound', [function () {
+			  return { city: "New York City" };
+			}]);
 
-		injector(['NextBigSound', function (NextBigSound) {
-		  assert.equal(NextBigSound.city, "New York City");
-		}]);
+			injector(['NextBigSound', function (NextBigSound) {
+			  assert.equal(NextBigSound.city, "New York City");
+			}]);
+		});
 	});
 
 	describe('#inject', function () {
@@ -63,6 +68,19 @@ describe('injector', function () {
 				}]);
 
 				assert.equal(injectedByModule, injectedByMethod);
+		});
+	});
+
+	describe('#unregister', function () {
+		it('should remove a registered provider', function () {
+			injector.value('unregistrationTest', 'Moshe Bildner');
+			injector.unregister('unregistrationTest');
+
+			assert.throws(function () {
+				injector.inject(['unregistrationTest', function (unregistrationTest) {
+					// Error: Provider for unregistrationTest failed
+				}]);
+			});
 		});
 	});
 

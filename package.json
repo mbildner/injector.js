@@ -1,6 +1,6 @@
 {
   "name": "mhb-injector",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A simple dependency injection library in JavaScript.",
   "main": "injector.js",
   "scripts": {

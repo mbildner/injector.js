@@ -86,6 +86,11 @@
     providerStorage[name] = providerFunc;
   }
 
+  // removes a provider function from the module's internal storage
+  function unregister (name) {
+  	providerStorage[name] = null;
+  }
+
   /**
    * Registers injectable value provider
    * @param  {String} name  - name of the injectable value
@@ -224,6 +229,7 @@
   injector.service = service;
   injector.value = value;
   injector.inject = inject;
+  injector.unregister = unregister;
 
   if (typeof exports !== 'undefined') {
     if (typeof module !== 'undefined' && module.exports) {
