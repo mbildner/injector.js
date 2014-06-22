@@ -82,8 +82,23 @@ describe('injector', function () {
 		});
 	});
 
-
-
+	describe('chaining', function () {
+		it('should support chaining all methods but #inject', function () {
+			injector
+				.service('ChainA', function () {
+					this.hasProps = true;
+				})
+				.factory('ChainB', function () {
+					return { hasProps: true };
+				})
+				.value('ChainC', true)
+				.inject(['ChainA', 'ChainB', 'ChainC', function (ChainA, ChainB, ChainC) {
+					assert.equal(ChainA.hasProps, true);
+					assert.equal(ChainB.hasProps, true);
+					assert.equal(ChainC, true);
+				}]);
+		});
+	});
 });
 
 

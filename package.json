@@ -1,0 +1,28 @@
+{
+  "name": "mhb-injector",
+  "version": "0.0.0",
+  "description": "A simple dependency injection library in JavaScript.",
+  "main": "injector.js",
+  "scripts": {
+    "test": "./node_modules/mocha/bin/_mocha *.spec.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mbildner/injector.js.git"
+  },
+  "keywords": [
+    "dependency",
+    "injection",
+    "mvc",
+    "javascript"
+  ],
+  "author": "Moshe Bildner <moshe.bildner@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mbildner/injector.js/issues"
+  },
+  "homepage": "https://github.com/mbildner/injector.js",
+  "devDependencies": {
+    "mocha": "^1.20.1"
+  }
+}
