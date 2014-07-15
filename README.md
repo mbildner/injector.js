@@ -3,7 +3,7 @@ injector.js
 
 Dependency-Injection library for JavaScript
 -------------------------------------------
-
+![travis-ci status](https://travis-ci.org/mbildner/injector.js.svg)
 
 injector.js is a small, simple Dependency-Injection library. It was built as a larger project to clone the incredible [Angular.js](https://angularjs.org/) framework, and the API borrows shamelessly from theirs.
 
